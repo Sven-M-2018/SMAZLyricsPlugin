@@ -23,7 +23,7 @@ namespace SMAZLyricsPlugin
     public class SMAZLyricsPlugin : IPlugin, ILyrics
     {
         public string Name => "SMAZLyrics";
-        public string Version => "0.1.0";
+        public string Version => "0.2.0";
 
         public async Task GetLyrics(PluginLyricsInput input, CancellationToken ct, Action<PluginLyricsResult> updateAction)
         {
@@ -76,20 +76,23 @@ namespace SMAZLyricsPlugin
             var match = LyricsRegex.Match(web);
             if (match.Success)
             {
-                lyrics = CleanLine(match.Groups["lyrics"].Value);
+                lyrics = CleanLyrics(match.Groups["lyrics"].Value);
             }
             return lyrics;
         }
 
-        private static string CleanLine(String line)
+        private static string CleanLyrics(String lyrics)
         {
-            line = Regex.Replace(line, "<a href=[^>]+>", "", RegexOptions.IgnoreCase);
-            line = line.Replace("</a>", "");
-            line = line.Replace("<br />", "\n").Replace("<br/>", "\n").Replace("<br>", "\n").Replace("\n", "<br/>\n");
-            line = line.Replace("<br/>\n<br/>\n", "</p>\n<p>");
-            line = line.Replace("´", "'").Replace("`", "'").Replace("’", "'").Replace("‘", "'");
-            line = line.Replace("…", "...").Replace(" ...", "...").Trim();
-            return "<p>" + line.Trim() + "</p>";
+            lyrics = Regex.Replace(lyrics, "<a href=[^>]+>", "", RegexOptions.IgnoreCase);
+            lyrics = lyrics.Replace("</a>", "");
+            lyrics = lyrics.Replace("<br />", "\n").Replace("<br/>", "\n").Replace("<br>", "\n").Replace("\n", "<br/>\n");
+            lyrics = lyrics.Replace("<br/>\n<br/>\n", "</p>\n<p>");
+            lyrics = lyrics.Replace("´", "'").Replace("`", "'").Replace("’", "'").Replace("‘", "'");
+            lyrics = lyrics.Replace("…", "...").Replace(" ...", "...");
+            lyrics = lyrics.Replace("<p><br/>\n", "<p>\n");
+            lyrics = Regex.Replace(lyrics, @"\s+<br/>", "<br/>", RegexOptions.IgnoreCase);
+            lyrics = Regex.Replace(lyrics, @"\s+<p/>", "<p/>", RegexOptions.IgnoreCase);
+            return "<p>" + lyrics.Trim() + "</p>\n<p><i><sub>powered by AZLyrics</sub></i></p>";
         }
     }
 }
